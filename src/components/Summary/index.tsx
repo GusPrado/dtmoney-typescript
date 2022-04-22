@@ -8,6 +8,31 @@ import { TransactionsContext } from '../../TransactionContext';
 export function Summary() {
   const { transactions } = useContext(TransactionsContext);
 
+  const summary = transactions.reduce(
+    (acc, transaction) => {
+      if (transaction.type === 'deposit') {
+        acc.deposits += transaction.amount;
+        acc.total += transaction.amount;
+      } else {
+        acc.withdraws += transaction.amount;
+        acc.total -= transaction.amount;
+      }
+      return acc;
+    },
+    {
+      deposits: 0,
+      withdraws: 0,
+      total: 0,
+    }
+  );
+
+  function formatAmount(amount: number) {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(amount);
+  }
+
   return (
     <Container>
       <div>
@@ -15,21 +40,21 @@ export function Summary() {
           <p>Entradas</p>
           <img src={incomeImg} alt='entradas' />
         </header>
-        <strong>R$1.000</strong>
+        <strong>{formatAmount(summary.deposits)}</strong>
       </div>
       <div>
         <header>
           <p>Saídas</p>
           <img src={outcomeImg} alt='saídas' />
         </header>
-        <strong>- R$500</strong>
+        <strong>- {formatAmount(summary.withdraws)}</strong>
       </div>
       <div className='background'>
         <header>
           <p>Total</p>
           <img src={totalImg} alt='total' />
         </header>
-        <strong>R$500</strong>
+        <strong>{formatAmount(summary.total)}</strong>
       </div>
     </Container>
   );
